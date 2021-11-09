@@ -7,7 +7,7 @@ import utc from "dayjs/plugin/utc.js"
 import relative from "dayjs/plugin/relativeTime.js"
 import timezone from "dayjs/plugin/timezone.js"
 import toObject from "dayjs/plugin/toObject.js"
-import discord from "discord.js"
+import discord, { Snowflake } from "discord.js"
 import EventEmitter from "events"
 import * as prettier from "prettier"
 
@@ -300,4 +300,9 @@ export class SafeMessageEmbed extends discord.MessageEmbed {
 
     return this
   }
+}
+
+export function isBotOwner(id: Snowflake) {
+  var owners = process.env.BOT_OWNERS?.split(/[;|.,\s+]+/);
+  return owners ? owners.includes(id) : false;
 }

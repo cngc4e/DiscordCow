@@ -10,8 +10,8 @@ const listener: app.Listener<"ready"> = {
   once: true,
   async run() {
     app.log(
-      `Ok i'm ready! ${chalk.blue(
-        "My default prefix is"
+      `All ready! ${chalk.blue(
+        "Default prefix is set as:"
       )} ${chalk.bgBlueBright.black(process.env.BOT_PREFIX)}`
     )
 

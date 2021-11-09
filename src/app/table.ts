@@ -67,9 +67,7 @@ export class Table<Type> {
         throw error
       } else {
         logger.log(
-          `loaded table ${chalk.blueBright(this.options.name)} ${chalk.grey(
-            this.options.description
-          )}`
+          `loaded table: ${chalk.blueBright(this.options.name)}`
         )
       }
     }

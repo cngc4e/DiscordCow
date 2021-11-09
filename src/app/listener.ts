@@ -24,11 +24,11 @@ listenerHandler.on("load", async (filepath, client) => {
   })
 
   logger.log(
-    `loaded listener ${chalk.yellow(
+    `loaded listener: ${chalk.yellow(
       listener.once ? "once" : "on"
     )} ${chalk.blueBright(listener.event)} ${chalk.green(
       path.basename(filepath, ".js").replace(`${listener.event}.`, "")
-    )} ${chalk.grey(listener.description)}`
+    )}`
   )
 })
 

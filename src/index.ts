@@ -3,18 +3,20 @@ import type { FullClient } from "./app.js"
 
 import "dotenv/config"
 
-for (const key of ["BOT_TOKEN", "BOT_PREFIX", "BOT_OWNER"]) {
+for (const key of ["BOT_TOKEN", "BOT_PREFIX"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
     throw new Error(`You need to add "${key}" value in your .env file.`)
   }
 }
 
+const FLAGS = discord.Intents.FLAGS;
+
 const client = new discord.Client({
-  intents: process.env.BOT_INTENTS
-    ? process.env.BOT_INTENTS.split(/[;|.,\s+]+/).map(
-        (intent) => discord.Intents.FLAGS[intent as discord.IntentsString]
-      )
-    : [],
+  intents: [
+    FLAGS.GUILDS, FLAGS.GUILD_MESSAGES,
+		FLAGS.GUILD_MEMBERS, FLAGS.GUILD_WEBHOOKS,
+		FLAGS.GUILD_MESSAGE_REACTIONS, FLAGS.GUILD_EMOJIS_AND_STICKERS
+  ]
 })
 
 ;(async () => {

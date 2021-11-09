@@ -230,9 +230,9 @@ export function validateCommand<
       )
 
   logger.log(
-    `loaded command ${chalk.blueBright(
+    `loaded command: ${chalk.blueBright(
       commandBreadcrumb(command)
-    )} ${chalk.grey(command.options.description)}`
+    )}`
   )
 
   if (command.options.subs)
@@ -325,7 +325,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
     if (core.scrap(cmd.options.guildOwnerOnly, message))
       if (
         message.guild.ownerId !== message.member.id &&
-        process.env.BOT_OWNER !== message.member.id
+        !core.isBotOwner(message.member.id)
       )
         return new core.SafeMessageEmbed()
           .setColor("RED")
@@ -471,7 +471,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
         )
 
   if (await core.scrap(cmd.options.botOwnerOnly, message))
-    if (process.env.BOT_OWNER !== message.author.id)
+    if (!core.isBotOwner(message.author.id))
       return new core.SafeMessageEmbed()
         .setColor("RED")
         .setAuthor(
