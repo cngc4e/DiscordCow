@@ -22,6 +22,12 @@ const client = new discord.Client({
 ;(async () => {
   const app = await import("./app.js")
 
+  if (process.env.REDIS_URL) {
+    // Initialise non-blockingly
+    // Users are expected to do a sanity check against isReady() before usage
+    app.redis.initRedis(process.env.REDIS_URL)
+  }
+
   try {
     await app.tableHandler.load(client as FullClient)
     await app.commandHandler.load(client as FullClient)
