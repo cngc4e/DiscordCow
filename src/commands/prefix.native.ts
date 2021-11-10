@@ -24,16 +24,28 @@ export default new app.Command({
         )}\``
       )
 
-    await guilds.query
-      .insert({
-        id: message.guild.id,
-        prefix: prefix,
-      })
-      .onConflict("id")
-      .merge()
+    const reset = prefix === (process.env.BOT_PREFIX as string)
+
+    if (reset) {
+      await guilds.query
+        .where("id", message.guild.id)
+        .update("prefix", null)
+    } else {
+      await guilds.query
+        .insert({
+          id: message.guild.id,
+          prefix: prefix,
+        })
+        .onConflict("id")
+        .merge()
+    }
+
+    // Invalidate the cache
+    const slug = app.slug("cachedPrefix", message.guild.id)
+    app.cache.delete(slug)
 
     await message.channel.send(
-      `My new prefix for "**${message.guild}**" is \`${prefix}\``
+      `My prefix for "**${message.guild}**" is now ${reset ? "reset to" : " "}\`${prefix}\``
     )
   },
 })

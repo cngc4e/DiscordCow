@@ -45,7 +45,7 @@ export default new app.Command({
             )
           ).filter((line) => line.length > 0),
           10,
-          (page) => {
+          async (page) => {
             return new app.SafeMessageEmbed()
               .setColor()
               .setAuthor(
@@ -53,7 +53,7 @@ export default new app.Command({
                 message.client.user?.displayAvatarURL()
               )
               .setDescription(page.join("\n"))
-              .setFooter(`${message.usedPrefix}help <command>`)
+              .setFooter(`${await app.prefix(message.guild)}help <command>`)
           }
         ),
         filter: (reaction, user) => user.id === message.author.id,

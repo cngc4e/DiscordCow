@@ -61,16 +61,49 @@ export function rootPath(...path: string[]): string {
  */
 export const cache = new (class Cache {
   private data: { [key: string]: any } = {}
+  private activeData: { [key: string]: {
+    timer: NodeJS.Timeout,
+    defaultTimeout: number
+  }} = {}
 
   get<T>(key: string): T | undefined {
+    const active = this.activeData[key];
+    if (active) {
+      clearTimeout(active.timer)
+      const timer = setTimeout(() => this.delete(key), active.defaultTimeout)
+      active.timer = timer
+    }
     return this.data[key]
   }
 
   set(key: string, value: any) {
+    const active = this.activeData[key];
+    if (active) {
+      clearTimeout(active.timer)
+      delete this.activeData[key]
+    }
     this.data[key] = value
   }
 
+  /**
+   * Sets a cache that expires when not actively accessed by the end of the timeout period.
+   * @param timeout - the timeout in milliseconds (default 5 minutes).
+   */
+  activeSet(key: string, value: any, timeout: number = 300000) {
+    this.set(key, value)
+    const timer = setTimeout(() => this.delete(key), timeout)
+    this.activeData[key] = {
+      timer: timer,
+      defaultTimeout: timeout
+    }
+  }
+
   delete(key: string) {
+    const active = this.activeData[key];
+    if (active) {
+      clearTimeout(active.timer)
+      delete this.activeData[key]
+    }
     delete this.data[key]
   }
 
