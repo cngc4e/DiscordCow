@@ -17,8 +17,9 @@ export const tableHandler = new handler.Handler(
 tableHandler.once("finish", async (pathList) => {
   const tables = await Promise.all(
     pathList.map(async (filepath) => {
-      const tableFile = await import("file://" + filepath)
-      return tableFile.default
+      const file = await import("file://" + filepath)
+      if (filepath.endsWith(".native.js")) file.default.options.native = true
+      return file.default
     })
   )
 
@@ -37,6 +38,11 @@ export interface TableOptions<Type> {
   priority?: number
   migrations?: { [version: number]: (table: Knex.CreateTableBuilder) => void }
   setup: (table: Knex.CreateTableBuilder) => void
+  /**
+   * This property is automatically setup on bot running.
+   * @deprecated
+   */
+  native?: boolean
 }
 
 export class Table<Type> {
@@ -53,9 +59,9 @@ export class Table<Type> {
         this.options.setup
       )
       logger.log(
-        `created table ${chalk.blueBright(this.options.name)} ${chalk.grey(
-          this.options.description
-        )}`
+        `created table ${chalk.blueBright(this.options.name)}${
+          this.options.native ? ` ${chalk.green("native")}` : ""
+        } ${chalk.grey(this.options.description)}`
       )
     } catch (error: any) {
       if (error.toString().includes("syntax error")) {
@@ -68,7 +74,9 @@ export class Table<Type> {
         throw error
       } else {
         logger.log(
-          `loaded table: ${chalk.blueBright(this.options.name)}`
+          `loaded table ${chalk.blueBright(this.options.name)}${
+            this.options.native ? ` ${chalk.green("native")}` : ""
+          }`
         )
       }
     }
