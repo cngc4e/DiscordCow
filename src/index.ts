@@ -1,5 +1,5 @@
 import discord from "discord.js"
-import type { FullClient } from "./app.js"
+import { FullClient, remote } from "./app.js"
 
 import "dotenv/config"
 
@@ -23,9 +23,7 @@ const client = new discord.Client({
   const app = await import("./app.js")
 
   if (process.env.REDIS_URL) {
-    // Initialise non-blockingly
-    // Users are expected to do a sanity check against isReady() before usage
-    app.redis.initRedis(process.env.REDIS_URL)
+    await remote.connect(process.env.REDIS_URL);
   }
 
   try {
