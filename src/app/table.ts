@@ -10,7 +10,8 @@ import * as database from "./database.js"
 import type { MigrationData } from "../tables/migration.native.js"
 
 export const tableHandler = new handler.Handler(
-  process.env.BOT_TABLES_PATH ?? path.join(process.cwd(), "dist", "tables")
+  process.env.BOT_TABLES_PATHS?.split(/[;|,:]+/).map((val) => path.resolve(val))
+    ?? [path.join(process.cwd(), "dist", "tables")]
 )
 
 tableHandler.once("finish", async (pathList) => {

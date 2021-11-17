@@ -11,7 +11,8 @@ import * as handler from "./handler.js"
 import * as argument from "./argument.js"
 
 export const commandHandler = new handler.Handler(
-  process.env.BOT_COMMANDS_PATH ?? path.join(process.cwd(), "dist", "commands")
+  process.env.BOT_COMMANDS_PATHS?.split(/[;|,:]+/).map((val) => path.resolve(val))
+    ?? [path.join(process.cwd(), "dist", "commands")]
 )
 
 commandHandler.on("load", async (filepath) => {

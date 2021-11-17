@@ -11,15 +11,17 @@ export interface HandlerEvents {
 export class Handler {
   private listeners: { [k: string]: Set<any> } = {}
 
-  constructor(private path: string) {}
+  constructor(private paths: string[]) {}
 
   async load(client: core.FullClient) {
-    const filenames = await fs.readdir(this.path)
     const filepathList: string[] = []
-    for (const filename of filenames) {
-      const filepath = path.join(this.path, filename)
-      filepathList.push(filepath)
-      await this.emit("load", filepath, client)
+    for (const fpath of this.paths) {
+      const filenames = await fs.readdir(fpath)
+      for (const filename of filenames) {
+        const filepath = path.join(fpath, filename)
+        filepathList.push(filepath)
+        await this.emit("load", filepath, client)
+      }
     }
     await this.emit("finish", filepathList, client)
   }

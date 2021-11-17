@@ -7,8 +7,8 @@ import * as logger from "./logger.js"
 import * as handler from "./handler.js"
 
 export const listenerHandler = new handler.Handler(
-  process.env.BOT_LISTENERS_PATH ??
-    path.join(process.cwd(), "dist", "listeners")
+  process.env.BOT_LISTENERS_PATHS?.split(/[;|,:]+/).map((val) => path.resolve(val))
+    ?? [path.join(process.cwd(), "dist", "listeners")]
 )
 
 listenerHandler.on("load", async (filepath, client) => {

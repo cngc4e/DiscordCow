@@ -1,13 +1,17 @@
 import discord from "discord.js"
-import { FullClient, remote } from "./app.js"
-
-import "dotenv/config"
+import { FullClient, logger } from "./app.js"
 
 for (const key of ["BOT_TOKEN", "BOT_PREFIX"]) {
   if (!process.env[key] || /^{{.+}}$/.test(process.env[key] as string)) {
     throw new Error(`You need to add "${key}" value in your .env file.`)
   }
 }
+
+// Log supported optional env keys, which could be helpful for debugging
+logger.log("The following optional environment variables have been loaded: " + [
+  "BOT_OWNERS", "BOT_LOCALE", "BOT_TIMEZONE", "BOT_TABLES_PATHS",
+  "BOT_COMMANDS_PATHS", "BOT_LISTENERS_PATHS", "REDIS_URL",
+].filter((key) => process.env[key]).join(", "))
 
 const FLAGS = discord.Intents.FLAGS;
 
@@ -23,7 +27,7 @@ const client = new discord.Client({
   const app = await import("./app.js")
 
   if (process.env.REDIS_URL) {
-    await remote.connect(process.env.REDIS_URL);
+    await app.remote.connect(process.env.REDIS_URL);
   }
 
   try {
