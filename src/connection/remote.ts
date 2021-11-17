@@ -1,6 +1,6 @@
 import { createClient } from "redis";
 import { TypedEmitter } from "tiny-typed-emitter";
-import { ByteArray, EventWaiter } from "../app.js";
+import { ByteArray, EventWaiter, logger } from "../app.js";
 
 interface InfraConnectionEvents {
     /**
@@ -14,7 +14,7 @@ interface InfraConnectionEvents {
     /**
      * Redis client error occurred.
      */
-    clientError: (error: Error) => void;
+    clientError: (error: Error, desc: "sub" | "pub") => void;
 }
 
 export interface InfraConnectionMessage {
@@ -117,7 +117,8 @@ class InfraConnection extends TypedEmitter<InfraConnectionEvents> {
         this.pubClient = this.client.duplicate() as ReturnType<typeof createClient>;
 
         // don't throw on error; just reconnect.
-        this.client.on("error", (err) => this.emit("clientError", err));
+        this.client.on("error", (err) => this.emit("clientError", err, "sub"));
+        this.pubClient.on("error", (err) => this.emit("clientError", err, "pub"));
         await Promise.all([this.client.connect(), this.pubClient.connect()]);
 
         // ensure no other clients are listening
@@ -261,3 +262,8 @@ export async function waitForMessage(
 ) {
     return await (new EventWaiter<InfraConnectionMessageReceiverEvents>(messageReceiver)).waitFor(...args);
 }
+
+// Log client errors
+remote.on("clientError", (err, desc) => {
+    logger.error(`[${desc.toUpperCase()}] A Redis client error occured: ${err}`, "InfraConn");
+});
