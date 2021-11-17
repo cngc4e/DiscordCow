@@ -142,6 +142,11 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
   >
 
   /**
+   * Force the bot owner to adhere to the command's role/user permissions requirement.
+   */
+  botOwnerStrict?: boolean
+
+  /**
    * Middlewares can stop the command if returning a string (string is displayed as error message in discord)
    */
   middlewares?: Middleware<Type>[]
@@ -313,6 +318,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
   }
 
   const channelType = await core.scrap(cmd.options.channelType, message)
+  const skipPermissionFilter = !cmd.options.botOwnerStrict && core.isBotOwner(message.member.id)
 
   if (isGuildMessage(message)) {
     if (channelType === "dm")
@@ -351,7 +357,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
             )
     }
 
-    if (cmd.options.userPermissions) {
+    if (cmd.options.userPermissions && !skipPermissionFilter) {
       const userPermissions = await core.scrap(
         cmd.options.userPermissions,
         message
@@ -367,7 +373,7 @@ export async function prepareCommand<Type extends keyof CommandMessageType>(
             )
     }
 
-    if (cmd.options.roles) {
+    if (cmd.options.roles && !skipPermissionFilter) {
       const roles = await core.scrap(cmd.options.roles, message)
 
       const isRole = (r: any): r is discord.RoleResolvable => {
