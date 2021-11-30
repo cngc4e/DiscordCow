@@ -35,6 +35,8 @@ const client = new discord.Client({
     await app.commandHandler.load(client as FullClient)
     await app.listenerHandler.load(client as FullClient)
 
+    client.emit("handlerLoaded")
+
     await client.login(process.env.BOT_TOKEN)
 
     if (!app.isFullClient(client)) {

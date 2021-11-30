@@ -7,7 +7,7 @@ interface IEventWaiterOptions {
     defaultTimeout?: number;
 }
 
-interface IWaitForOptions<F extends unknown[]> {
+export interface IWaitForOptions<F extends unknown[]> {
     /**
      * The maximum time (in milliseconds) to wait for the event. Supercedes the default timeout
      * defined by the waiter object.
@@ -59,4 +59,19 @@ export class EventWaiter<Events = { [event: string | symbol]: (...args: any[]) =
             }
         });
     }
+}
+
+interface IWaitPromiseOptions {
+    /**
+     * The maximum time (in milliseconds) to wait for the promise.
+     */
+    timeout?: number;
+}
+
+export function waitPromise(promise: Promise<unknown>, options?: IWaitPromiseOptions) {
+    if (!options.timeout) return promise;
+    return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject("Timed out"), options.timeout))
+    ])
 }

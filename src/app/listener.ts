@@ -33,7 +33,8 @@ listenerHandler.on("load", async (filepath, client) => {
 })
 
 export interface MoreClientEvents {
-  raw: [packet: apiTypes.GatewayDispatchPayload]
+  raw: [packet: apiTypes.GatewayDispatchPayload],
+  handlerLoaded: [],
 }
 
 export type AllClientEvents = discord.ClientEvents & MoreClientEvents
