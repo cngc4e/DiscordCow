@@ -128,7 +128,7 @@ class InfraConnection extends TypedEmitter<InfraConnectionEvents> {
 
         // subscribe to the receiver channel
         this.client.subscribe(this.redisChannel,
-            (message, _channel) => this.onMessagePacketReceived(Buffer.from(message, "binary")));
+            (message, _channel) => this.onMessagePacketReceived(Buffer.from(message)));
 
         this.connected = true;
     }
@@ -206,7 +206,7 @@ class InfraConnection extends TypedEmitter<InfraConnectionEvents> {
         await this.client.subscribe(
             InfraConnection.broadcastToRedisChannel(channel),
             async (message, _channel) => {
-                const bcst = await this.onBroadcastPacketReceived(channel, Buffer.from(message, "binary"));
+                const bcst = await this.onBroadcastPacketReceived(channel, Buffer.from(message));
                 subscriber.emit("message", bcst.content, bcst);
                 this.emit("broadcastReceived", bcst);
             }
