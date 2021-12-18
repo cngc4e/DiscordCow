@@ -15,7 +15,7 @@ logger.log("The following optional environment variables have been loaded: " + [
 
 const FLAGS = discord.Intents.FLAGS;
 
-const client = new discord.Client({
+export const client = new discord.Client({
   intents: [
     FLAGS.GUILDS, FLAGS.GUILD_MESSAGES,
 		FLAGS.GUILD_MEMBERS, FLAGS.GUILD_WEBHOOKS,
