@@ -19,6 +19,7 @@ tableHandler.once("finish", async (pathList) => {
     pathList.map(async (filepath) => {
       const file = await import("file://" + filepath)
       if (filepath.endsWith(".native.js")) file.default.options.native = true
+      file.default.filepath = filepath
       return file.default
     })
   )
@@ -46,6 +47,8 @@ export interface TableOptions<Type> {
 }
 
 export class Table<Type> {
+  filepath?: string
+
   constructor(public readonly options: TableOptions<Type>) {}
 
   get query() {
@@ -68,7 +71,8 @@ export class Table<Type> {
         logger.error(
           `you need to implement the "setup" method in options of your ${chalk.blueBright(
             this.options.name
-          )} table!`
+          )} table!`,
+          this.filepath ?? __filename
         )
 
         throw error
@@ -92,7 +96,7 @@ export class Table<Type> {
         )
       }
     } catch (error: any) {
-      logger.error(error, "database:Table:make", true)
+      logger.error(error, this.filepath ?? __filename, true)
     }
 
     return this
