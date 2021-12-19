@@ -23,29 +23,27 @@ export const client = new discord.Client({
   ]
 })
 
-;(async () => {
-  const app = await import("./app.js")
+const app = await import("./app.js")
 
+try {
   if (process.env.REDIS_URL) {
     await app.remote.connect(process.env.REDIS_URL);
   }
 
-  try {
-    await app.tableHandler.load(client as FullClient)
-    await app.commandHandler.load(client as FullClient)
-    await app.listenerHandler.load(client as FullClient)
+  await app.tableHandler.load(client as FullClient)
+  await app.commandHandler.load(client as FullClient)
+  await app.listenerHandler.load(client as FullClient)
 
-    client.emit("handlerLoaded")
+  client.emit("handlerLoaded")
 
-    await client.login(process.env.BOT_TOKEN)
+  await client.login(process.env.BOT_TOKEN)
 
-    if (!app.isFullClient(client)) {
-      app.error("The Discord client is not full.", "index")
-      client.destroy()
-      process.exit(1)
-    }
-  } catch (error: any) {
-    app.error(error, "index", true)
+  if (!app.isFullClient(client)) {
+    app.error("The Discord client is not full.", "index")
+    client.destroy()
     process.exit(1)
   }
-})()
+} catch (error: any) {
+  app.error(error, "index", true)
+  process.exit(1)
+}
