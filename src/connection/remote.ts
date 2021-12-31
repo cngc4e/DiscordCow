@@ -121,10 +121,10 @@ class InfraConnection extends TypedEmitter<InfraConnectionEvents> {
         this.pubClient.on("error", (err) => this.emit("clientError", err, "pub"));
         await Promise.all([this.client.connect(), this.pubClient.connect()]);
 
-        // ensure no other clients are listening
+        // warn when there are other clients listening
         var numsubs = (await this.client.pubSubNumSub(this.redisChannel))[this.redisChannel];
         if (numsubs !== 0)
-            throw `Attempt to listen on channel ${this.redisChannel} which already had ${numsubs} subscribers. Duplicated process... or hacked?`;
+            logger.warn(`[Redis] Attempt to listen on channel ${this.redisChannel} which already had ${numsubs} subscribers. Duplicated process... or hacked?`);
 
         // subscribe to the receiver channel
         this.client.subscribe(
