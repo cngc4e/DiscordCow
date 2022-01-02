@@ -17,6 +17,8 @@ export const commandHandler = new handler.Handler(
 
 commandHandler.on("load", async (filepath) => {
   const file = await import("file://" + filepath)
+  if (filepath.endsWith(".native.js")) file.default.options.native = true
+  file.default.filepath = filepath
   return commands.add(file.default)
 })
 
@@ -181,9 +183,16 @@ export interface CommandOptions<Type extends keyof CommandMessageType> {
    * @deprecated
    */
   parent?: Command<keyof CommandMessageType>
+  /**
+   * This property is automatically setup on bot running.
+   * @deprecated
+   */
+  native?: boolean
 }
 
 export class Command<Type extends keyof CommandMessageType = "all"> {
+  filepath?: string
+
   constructor(public options: CommandOptions<Type>) {}
 }
 
@@ -203,7 +212,7 @@ export function validateCommand<
         )} command wants to be a default command but the ${chalk.blueBright(
           defaultCommand.options.name
         )} command is already the default command`,
-        "command:validateCommand"
+        command.filepath ?? __filename
       )
     else defaultCommand = command
   }
@@ -236,9 +245,9 @@ export function validateCommand<
       )
 
   logger.log(
-    `loaded command: ${chalk.blueBright(
-      commandBreadcrumb(command)
-    )}`
+    `loaded command ${chalk.blueBright(commandBreadcrumb(command))}${
+      command.options.native ? ` ${chalk.green("native")}` : ""
+    }`
   )
 
   if (command.options.subs)
